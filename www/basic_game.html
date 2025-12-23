@@ -37,7 +37,7 @@
             box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
         }
         button {
-            background: #c3992a;
+            background: #888;
             color: white;
             border: none;
             padding: 12px 20px;
@@ -47,11 +47,12 @@
             cursor: pointer;
             min-width: 100px;
         }
-        button:hover { background: #d4af37; }
-        button:disabled {
-            background: #666;
-            opacity: 0.6;
-            cursor: not-allowed;
+        button:hover { opacity: 0.9; }
+        button.legal {
+            background: #c3992a;
+        }
+        button.legal:hover {
+            background: #d4af37;
         }
         #settings-btn {
             position: fixed;
@@ -141,6 +142,13 @@
             </select>
         </div>
         <div class="setting-item">
+            <label>Double After Split:</label><br>
+            <select id="das">
+                <option value="true" selected>Allowed</option>
+                <option value="false">Not Allowed</option>
+            </select>
+        </div>
+        <div class="setting-item">
             <label>Decks:</label><br>
             <select id="num-decks">
                 <option value="1">1</option>
@@ -172,7 +180,7 @@
 </div>
 
 <div id="game">
-    <h1>Blackjack Trainer</h1>
+    <h1>Basic Strategy Blackjack Trainer</h1>
    
     <div class="section">
         <p>
@@ -211,14 +219,14 @@
 // Global State
 let deck = [];
 let dealerHand = [];
-let playerHands = []; // Array of hands, each hand is an array of cards
+let playerHands = []; // Array of {cards: [], bet: number}
 let currentHandIndex = 0;
 let bankroll = 5000, betPerHand = 25;
-let gamePhase = 'betting'; // betting, insurance, playing, dealer
+let gamePhase = 'betting';
 let totalDecisions = 0, correctDecisions = 0;
 
 // Settings
-let numDecks = 6, dealerHitsSoft17 = true, surrenderEnabled = true;
+let numDecks = 6, dealerHitsSoft17 = true, surrenderEnabled = true, doubleAfterSplit = true;
 let numSimultaneousHands = 1;
 
 const suits = ['♠', '♥', '♦', '♣'];
@@ -227,7 +235,11 @@ const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 function createDeck() {
     deck = [];
     for (let d = 0; d < numDecks; d++) {
-        suits.forEach(s => ranks.forEach(r => deck.push(r + s)));
+        for (let s of suits) {
+            for (let r of ranks) {
+                deck.push(r + s);
+            }
+        }
     }
     shuffle(deck);
 }
@@ -237,98 +249,79 @@ function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
-function dealCard(toHand) {
+function dealCard(toArray) {
     if (deck.length < 20) createDeck();
     const card = deck.pop();
-    toHand.push(card);
+    toArray.push(card);
     return card;
 }
-function cardValue(card) {
-    const v = card.slice(0, -1);
-    if (v === 'A') return 11;
-    if (['J','Q','K'].includes(v)) return 10;
-    return parseInt(v);
+function rankValue(card) {
+    const r = card.slice(0, -1);
+    if (r === 'A') return 'A';
+    if (['J','Q','K'].includes(r)) return '10';
+    return r;
+}
+function isSplittable(hand) {
+    return hand.cards.length === 2 && rankValue(hand.cards[0]) === rankValue(hand.cards[1]) && playerHands.length < 4;
 }
 function handTotal(hand) {
     let total = 0, aces = 0;
-    hand.forEach(c => {
-        let val = cardValue(c);
-        if (val === 11) aces++;
-        total += val;
+    hand.cards.forEach(c => {
+        let v = rankValue(c);
+        if (v === 'A') { aces++; v = 11; }
+        else v = parseInt(v);
+        total += v;
     });
     while (total > 21 && aces--) total -= 10;
     return total;
 }
-function isSoft(hand) {
-    let total = 0, aces = 0;
-    hand.forEach(c => {
-        let val = cardValue(c);
-        if (val === 11) aces++;
-        total += val;
-    });
-    return aces > 0 && total - 10 <= 21;
-}
-function isPair(hand) {
-    return hand.length === 2 && hand[0].slice(0,-1) === hand[1].slice(0,-1);
-}
-function getCardImageHTML(card) {
-    const suitMap = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
-    const rankMap = { 'A': 'ace', 'J': 'jack', 'Q': 'queen', 'K': 'king' };
-    const r = card.slice(0, -1);
-    const s = card.slice(-1);
-    const fileName = `${rankMap[r] || r}_of_${suitMap[s]}.svg`.toLowerCase();
-    return `<img src="cards/${fileName}" class="card-img" alt="${card}">`;
-}
 function getUpcardValue() {
     const up = dealerHand[0].slice(0, -1);
     if (up === 'A') return 11;
-    return (['J','Q','K'].includes(up)) ? 10 : parseInt(up);
+    if (['J','Q','K'].includes(up)) return 10;
+    return parseInt(up);
 }
-function getCorrectAction(hand) {
-    const total = handTotal(hand);
+function getCorrectAction(handObj) {
+    const hand = handObj.cards;
+    const total = handTotal(handObj);
     const up = getUpcardValue();
-    const pairRank = isPair(hand) ? cardValue(hand[0]) : 0;
+    let correct = new Set();
 
-    // Splits
-    if (isPair(hand)) {
-        if (pairRank === 11 || pairRank === 8) return 'split';
-        if (pairRank === 9) return (up <= 9 && up !== 7) ? 'split' : 'stand';
-        if (pairRank === 7) return up <= 7 ? 'split' : 'hit';
-        if (pairRank === 6) return up <= 6 ? 'split' : 'hit';
-        if (pairRank === 4) return (up === 5 || up === 6) ? 'split' : 'hit';
-        if (pairRank === 3 || pairRank === 2) return up <= 7 ? 'split' : 'hit';
-        if (pairRank === 10) return 'stand';
-    }
-
-    // Surrender
-    if (surrenderEnabled && hand.length === 2) {
-        if (total === 16 && up >= 9) return 'surrender';
-        if (total === 15 && up === 10) return 'surrender';
-    }
-
-    // Doubles
     if (hand.length === 2) {
-        if (total === 11) return 'double';
-        if (total === 10 && up <= 9) return 'double';
-        if (total === 9 && up >= 3 && up <= 6) return 'double';
+        const rank = rankValue(hand[0]);
+        if (rank === 'A' || rank === '8') correct.add('split');
+        if (rank === '9' && up <= 9 && up !== 7) correct.add('split');
+        if (rank === '7' && up <= 7) correct.add('split');
+        if (rank === '6' && up <= 6) correct.add('split');
+        if (rank === '4' && (up === 5 || up === 6)) correct.add('split');
+        if ((rank === '3' || rank === '2') && up <= 7) correct.add('split');
+
+        if (surrenderEnabled) {
+            if (total === 16 && up >= 9) correct.add('surrender');
+            if (total === 15 && up === 10) correct.add('surrender');
+        }
+
+        if (total === 11) correct.add('double');
+        if (total === 10 && up <= 9) correct.add('double');
+        if (total === 9 && up >= 3 && up <= 6) correct.add('double');
     }
 
-    // Hard totals
-    if (total >= 17) return 'stand';
-    if (total <= 11) return 'hit';
-    if (total >= 13 && up <= 6) return 'stand';
-    if (total === 12 && up >= 4 && up <= 6) return 'stand';
-    return 'hit';
+    if (total >= 17) correct.add('stand');
+    if (total <= 11) correct.add('hit');
+    if (total >= 12 && total <= 16 && up <= 6) correct.add('stand');
+
+    return correct;
 }
 function updatePlayerHandsDisplay() {
     const container = document.getElementById('player-hands-container');
     container.innerHTML = '';
-    playerHands.forEach((hand, i) => {
+    playerHands.forEach((handObj, i) => {
         const div = document.createElement('div');
         div.className = 'section';
+        const active = i === currentHandIndex ? ' (Active)' : '';
         div.innerHTML = `
-            <h2 class="hand-label">${numSimultaneousHands > 1 ? 'Hand ' + (i+1) + (i === currentHandIndex ? ' (Active)' : '') : 'Your Hand'}: <span class="hand-total">${handTotal(hand)}</span></h2>
-            <div class="cards hand-cards">${hand.map(getCardImageHTML).join('')}</div>
+            <h2 class="hand-label">${numSimultaneousHands > 1 ? 'Hand ' + (i+1) + active : 'Your Hand'}: ${handTotal(handObj)}</h2>
+            <div class="cards">${handObj.cards.map(getCardImageHTML).join('')}</div>
         `;
         container.appendChild(div);
     });
@@ -336,22 +329,28 @@ function updatePlayerHandsDisplay() {
 function updateActionButtons() {
     const container = document.getElementById('actions');
     container.innerHTML = '';
-    const hand = playerHands[currentHandIndex];
-    const correct = getCorrectAction(hand);
+    const handObj = playerHands[currentHandIndex];
+    const hand = handObj.cards;
+    const correct = getCorrectAction(handObj);
 
     const actions = ['hit', 'stand', 'double', 'split', 'surrender'];
+
     actions.forEach(act => {
-        // Only show if possible
-        if (act === 'double' && hand.length > 2) return;
-        if (act === 'split' && !isPair(hand)) return;
-        if (act === 'surrender' && (!surrenderEnabled || hand.length > 2)) return;
+        let show = true;
+        if (act === 'double') {
+            if (hand.length > 2 && !doubleAfterSplit) show = false;
+            if (hand.length !== 2 && doubleAfterSplit) show = false;
+        }
+        if (act === 'split' && !isSplittable(handObj)) show = false;
+        if (act === 'surrender' && (!surrenderEnabled || hand.length > 2)) show = false;
 
-        const btn = document.createElement('button');
-        btn.textContent = act.charAt(0).toUpperCase() + act.slice(1);
-        btn.onclick = () => playerMove(act);
-
-        // Do NOT disable any possible button – player can make any legal move
-        container.appendChild(btn);
+        if (show) {
+            const btn = document.createElement('button');
+            btn.textContent = act.charAt(0).toUpperCase() + act.slice(1);
+            btn.onclick = () => playerMove(act);
+            if (correct.has(act)) btn.classList.add('legal');
+            container.appendChild(btn);
+        }
     });
 }
 function updateDisplay() {
@@ -365,7 +364,7 @@ function updateDisplay() {
     document.getElementById('dealer-cards').innerHTML = hideDealer
         ? `<img src="cards/back.svg" class="card-img">` + getCardImageHTML(dealerHand[0])
         : dealerHand.map(getCardImageHTML).join('');
-    document.getElementById('dealer-total').innerText = hideDealer ? '?' : handTotal(dealerHand);
+    document.getElementById('dealer-total').innerText = hideDealer ? '?' : handTotal({cards: dealerHand});
 
     updatePlayerHandsDisplay();
 
@@ -375,24 +374,30 @@ function updateDisplay() {
 
     if (gamePhase === 'playing') updateActionButtons();
 }
+function getCardImageHTML(card) {
+    const suitMap = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
+    const rankMap = { 'A': 'ace', 'J': 'jack', 'Q': 'queen', 'K': 'king' };
+    const r = card.slice(0, -1);
+    const s = card.slice(-1);
+    const fileName = `${rankMap[r] || r}_of_${suitMap[s]}.svg`.toLowerCase();
+    return `<img src="cards/${fileName}" class="card-img" alt="${card}">`;
+}
 function startHand() {
     betPerHand = parseInt(document.getElementById('bet-input').value) || 25;
     if (betPerHand * numSimultaneousHands > bankroll) { alert("Insufficient funds!"); return; }
 
     bankroll -= betPerHand * numSimultaneousHands;
     playerHands = [];
-    for (let i = 0; i < numSimultaneousHands; i++) playerHands.push([]);
+    for (let i = 0; i < numSimultaneousHands; i++) {
+        playerHands.push({cards: [], bet: betPerHand});
+    }
     dealerHand = [];
     currentHandIndex = 0;
     gamePhase = 'playing';
 
     document.getElementById('feedback').innerText = 'Dealing...';
 
-    // Deal 2 cards to each player hand and dealer
-    for (let i = 0; i < numSimultaneousHands; i++) {
-        dealCard(playerHands[i]);
-        dealCard(playerHands[i]);
-    }
+    playerHands.forEach(h => { dealCard(h.cards); dealCard(h.cards); });
     dealCard(dealerHand);
     dealCard(dealerHand);
 
@@ -401,41 +406,40 @@ function startHand() {
     updateDisplay();
 }
 function playerMove(action) {
-    const hand = playerHands[currentHandIndex];
-    const correct = getCorrectAction(hand);
+    const handObj = playerHands[currentHandIndex];
+    const hand = handObj.cards;
+    const correct = getCorrectAction(handObj);
     totalDecisions++;
-    if (action === correct) {
+    if (correct.has(action)) {
         correctDecisions++;
         document.getElementById('feedback').innerText = "✓ Correct!";
         document.getElementById('feedback').style.color = "lime";
     } else {
-        document.getElementById('feedback').innerText = `✗ Wrong – correct was ${correct.toUpperCase()}`;
+        document.getElementById('feedback').innerText = `✗ Wrong – correct: ${[...correct].map(a => a.toUpperCase()).join('/')}`;
         document.getElementById('feedback').style.color = "red";
     }
 
     if (action === 'hit') {
         dealCard(hand);
-        if (handTotal(hand) > 21) moveToNextHand();
+        if (handTotal(handObj) > 21) moveToNextHand();
     } else if (action === 'stand') {
         moveToNextHand();
     } else if (action === 'double') {
-        bankroll -= betPerHand;
-        betPerHand *= 2; // Only affects current hand (simple)
+        bankroll -= handObj.bet;
+        handObj.bet *= 2;
         dealCard(hand);
         moveToNextHand();
     } else if (action === 'surrender') {
-        bankroll += Math.floor(betPerHand / 2);
+        bankroll += Math.floor(handObj.bet / 2);
         moveToNextHand();
     } else if (action === 'split') {
-        // Full split implementation
-        bankroll -= betPerHand; // Additional bet for new hand
-        const card1 = hand.pop();
-        const newHand = [card1];
+        bankroll -= handObj.bet;
+        const card = hand.pop();
+        const newHand = {cards: [card], bet: handObj.bet};
         dealCard(hand);
-        dealCard(newHand);
+        dealCard(newHand.cards);
         playerHands.splice(currentHandIndex + 1, 0, newHand);
         updateDisplay();
-        // Stay on current hand
     }
 
     updateDisplay();
@@ -452,8 +456,8 @@ function dealerPlay() {
     gamePhase = 'dealer';
     updateDisplay();
     const step = () => {
-        const total = handTotal(dealerHand);
-        const soft = isSoft(dealerHand) && total === 17;
+        const total = handTotal({cards: dealerHand});
+        const soft = handTotal({cards: dealerHand}) === 17 && dealerHand.some(c => c.startsWith('A'));
         if (total < 17 || (soft && dealerHitsSoft17)) {
             dealCard(dealerHand);
             updateDisplay();
@@ -465,16 +469,16 @@ function dealerPlay() {
     setTimeout(step, 800);
 }
 function evaluateAllHands() {
-    const dTotal = handTotal(dealerHand);
-    playerHands.forEach(hand => {
-        const pTotal = handTotal(hand);
+    const dTotal = handTotal({cards: dealerHand});
+    playerHands.forEach(h => {
+        const pTotal = handTotal(h);
         if (pTotal > 21) return;
-        if (pTotal === 21 && hand.length === 2) {
-            bankroll += betPerHand * (2 + 1.5); // BJ payout
+        if (pTotal === 21 && h.cards.length === 2) {
+            bankroll += h.bet * (2 + 1.5); // Blackjack payout
         } else if (dTotal > 21 || pTotal > dTotal) {
-            bankroll += betPerHand * 2;
+            bankroll += h.bet * 2;
         } else if (pTotal === dTotal) {
-            bankroll += betPerHand;
+            bankroll += h.bet;
         }
     });
     gamePhase = 'betting';
@@ -491,11 +495,12 @@ document.getElementById('insurance-no').onclick = () => {
     gamePhase = 'playing';
     updateDisplay();
 };
-/** Settings **/
+// Settings
 function applySettings() {
     numDecks = parseInt(document.getElementById('num-decks').value);
     dealerHitsSoft17 = document.getElementById('soft17').value === 'true';
     surrenderEnabled = document.getElementById('surrender').value === 'true';
+    doubleAfterSplit = document.getElementById('das').value === 'true';
     numSimultaneousHands = parseInt(document.getElementById('num-hands').value);
     bankroll = parseInt(document.getElementById('starting-bankroll').value) || 5000;
     document.getElementById('settings-menu').style.display = 'none';
