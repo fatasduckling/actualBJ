@@ -5,18 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Index Plays & Deviations</title>
     <style>
-        body { background: #0b6623; color: white; text-align: center; padding: 20px; }
-        img { width: 100%; max-width: 900px; margin: 30px 0; border-radius: 10px; }
-        button { background: #888; padding: 15px 30px; font-size: 20px; border-radius: 8px; margin-top: 40px; }
+        body { 
+            background: #0b6623; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            text-align: left; 
+            padding: 20px; 
+            line-height: 1.8;
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        h2 { color: gold; margin-top: 40px; border-bottom: 1px solid gold; padding-bottom: 10px; }
+        p { max-width: 900px; margin: 20px auto; font-size: 18px; }
+        ul { max-width: 900px; margin: 20px auto; font-size: 18px; }
+        li { margin-bottom: 15px; }
+        strong { color: gold; }
+        .highlight { 
+            background: rgba(255,215,0,0.2); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+        }
+        table { 
+            width: 95%; 
+            max-width: 900px; 
+            margin: 30px auto; 
+            border-collapse: collapse; 
+            font-size: 16px; 
+            table-layout: fixed;
+        }
+        th, td { 
+            padding: 12px 8px; 
+            text-align: center; 
+            border: 1px solid gold; 
+            word-wrap: break-word;
+        }
+        th { 
+            background: rgba(0,0,0,0.4); 
+            color: gold; 
+            font-size: 14px; 
+            position: sticky; 
+            top: 0;
+        }
+        .stand { background: rgba(0,255,0,0.2); } /* Green for STAND */
+        .double { background: rgba(0,0,255,0.2); } /* Blue for DOUBLE */
+        .surrender { background: rgba(255,0,0,0.2); } /* Red for SURRENDER */
+        caption { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: gold; }
+        .back-btn {
+            display: block;
+            width: 200px;
+            margin: 50px auto;
+            padding: 15px;
+            background: #888;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+        .back-btn:hover { background: #aaa; }
     </style>
 </head>
 <body>
-    <h1>Illustrious 18 & Fab 4 Deviations</h1>
-    <p>These are the 18 most valuable index plays where you deviate from basic strategy based on the True Count.</p>
-    <p>Only use when counting is enabled and True Count meets or exceeds the index number.</p>
-    <!-- Replace with your actual Illustrious 18 SVG if you have one, or use a PNG -->
-    <img src="charts/illustrious18.png" alt="Illustrious 18 Deviations">
-    <p>Key examples: Insurance at TC +3, 16 vs 10 at TC 0, etc.</p>
-    <button onclick="location.href='index.html'">← Back to Menu</button>
+
+    <h1>Index Plays & Deviations (Illustrious 18 + Fab 4)</h1>
+
+    <p style="text-align:center; font-size:20px;"><strong>Deviations are small changes from basic strategy based on the True Count (TC). They add 0.5–1% extra edge when counting.</strong></p>
+
+    <h2>How Deviations Work</h2>
+    <p>At specific True Counts, basic strategy isn't optimal. Use these <strong>index plays</strong> to deviate:</p>
+    <ul>
+        <li><strong>Rule:</strong> Deviate only if TC ≥ index number shown</li>
+        <li><strong>Illustrious 18:</strong> 18 most valuable hard hand deviations (stand or double instead of hit)</li>
+        <li><strong>Fab 4:</strong> 4 key surrender deviations</li>
+        <li><strong>Insurance:</strong> Take at TC +3 or higher (separate from basic strategy)</li>
+    </ul>
+    <p>Memorize these – they pay off big over thousands of hands!</p>
+
+    <h2>Illustrious 18 – Main Deviations Table</h2>
+    <p><strong>Action: Stand (for totals 12–16) or Double (for 8–11) when TC ≥ index.</strong></p>
+    <table>
+        <caption>Illustrious 18 Index Plays (TC to Deviate)</caption>
+        <tr>
+            <th>Player Hand</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>A</th>
+        </tr>
+        <tr>
+            <td><strong>16</strong></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="stand stand">0</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><strong>15</strong></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="stand">4</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><strong>13</strong></td>
+            <td class="stand">-1</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><strong>12</strong></td>
+            <td class="stand">3</td>
+            <td class="stand">2</td>
+            <td class="stand">0</td>
+            <td class="stand">-2</td>
+            <td class="stand">-1</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><strong>11 (Hard)</strong></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="double">1</td>
+        </tr>
+        <tr>
+            <td><strong>10 (Hard)</strong></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="double">4</td>
+            <td class="double">3</td>
+        </tr>
+        <tr>
+            <td><strong>9 (Hard)</strong></td>
+            <td class="double">1</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="double">3</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td><strong>10-10 (Pair)</strong></td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td class="stand">5</td>
+            <td class="stand">4</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+    </table>
+
+    <h2>Fab 4 – Surrender Deviations</h2>
+    <p><strong>Surrender when TC ≥ index (only initial 2-card hands).</strong></p>
+    <table>
+        <caption>Fab 4 Surrender Indexes</caption>
+        <tr><th>Player Total</th><th>2-8</th><th>9</th><th>10</th><th>A</th></tr>
+        <tr><td><strong>17</strong></td><td>-</td><td>-</td><td>-</td><td class="surrender">2</td></tr>
+        <tr><td><strong>16</strong></td><td>-</td><td class="surrender">5</td><td class="surrender">0</td><td class="surrender">1</td></tr>
+        <tr><td><strong>15</strong></td><td>-</td><td class="surrender">3</td><td class="surrender">0</td><td class="surrender">1</td></tr>
+        <tr><td><strong>14</strong></td><td>-</td><td>-</td><td class="surrender">3</td><td>-</td></tr>
+    </table>
+
+    <h2>Insurance & Other Key Plays</h2>
+    <ul>
+        <li><strong>Insurance:</strong> Take at TC <span class="highlight">+3</span> or higher (huge EV play!)</li>
+        <li>Practice these in the app's full counting trainer – feedback shows if you deviated correctly</li>
+    </ul>
+
+    <h2>Tips for Mastery</h2>
+    <ul>
+        <li>Memorize Illustrious 18 first – they're 80% of the value</li>
+        <li>Fab 4 only if surrender allowed (multi-deck games)</li>
+        <li>Use app settings to match table rules</li>
+        <li>Deviations only at TC ≥ index – otherwise stick to basic strategy</li>
+        <li>Accuracy > speed – verify with speed counting drills</li>
+    </ul>
+
+    <p style="text-align:center; font-size:20px;"><strong>Master these + Hi-Lo count = unbeatable edge!</strong></p>
+
+    <a href="index.html" class="back-btn">← Back to Menu</a>
+
 </body>
 </html>
