@@ -30,23 +30,22 @@
         #chart-container {
             margin: 40px auto;
             max-width: 100%;
-            padding: 20px;
+            padding: 0; /* Removed padding so image can fill the entire box */
             background: rgba(0,0,0,0.3);
             border-radius: 15px;
+            overflow: hidden; /* Ensures rounded corners on the image */
+        }
+        #chart-title {
+            margin: 20px 20px 15px 20px;
+            padding-top: 10px;
         }
         #chart-svg {
             width: 100%;
             height: auto;
-            max-width: none;
-            border-radius: 10px;
+            display: block;
+            border-radius: 0 0 15px 15px; /* Rounds only the bottom corners */
             box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            touch-action: pan-x pan-y pinch-zoom; /* Enables smooth native pinch-zoom and panning */
-        }
-        .instructions {
-            font-size: 16px;
-            margin: 15px auto;
-            max-width: 800px;
-            font-weight: bold;
+            touch-action: pan-x pan-y pinch-zoom; /* Keeps smooth native zoom/pan */
         }
         .back-btn {
             background: #888;
@@ -55,12 +54,6 @@
             font-size: 20px;
         }
         .back-btn:hover { background: #aaa; }
-
-        @media (max-width: 768px) {
-            .instructions {
-                font-size: 18px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -88,7 +81,6 @@
 
     <div id="chart-container" style="display:none;">
         <h2 id="chart-title">Basic Strategy Chart</h2>
-        <p class="instructions">Tip for mobile: Pinch to zoom in/out and drag to pan the chart for better readability.</p>
         <img id="chart-svg" src="" alt="Basic Strategy Chart">
     </div>
 
@@ -132,7 +124,6 @@
             }
         }
 
-        // Default: show the most common chart on load
         window.onload = function() {
             document.getElementById('game-select').value = "4-8-deck-shoe-hits-soft-17";
             showChart();
