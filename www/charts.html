@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Rules & Basic Strategy</title>
     <style>
         body {
@@ -33,25 +33,20 @@
             padding: 20px;
             background: rgba(0,0,0,0.3);
             border-radius: 15px;
-            overflow: hidden; /* Contain the pannable area */
-        }
-        #chart-wrapper {
-            width: 100%;
-            height: 70vh; /* Adjustable height for mobile */
-            overflow: hidden;
-            touch-action: none; /* Improves pinch-zoom performance */
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
         #chart-svg {
             width: 100%;
-            height: 100%;
-            object-fit: contain; /* Ensures SVG fits nicely */
+            height: auto;
+            max-width: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            touch-action: pan-x pan-y pinch-zoom; /* Enables smooth native pinch-zoom and panning */
         }
         .instructions {
-            font-size: 14px;
-            margin: 10px auto;
+            font-size: 16px;
+            margin: 15px auto;
             max-width: 800px;
+            font-weight: bold;
         }
         .back-btn {
             background: #888;
@@ -62,15 +57,11 @@
         .back-btn:hover { background: #aaa; }
 
         @media (max-width: 768px) {
-            #chart-wrapper {
-                height: 60vh;
-            }
             .instructions {
-                font-size: 16px;
+                font-size: 18px;
             }
         }
     </style>
-    <script src="https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
 </head>
 <body>
     <h1>How to Play Blackjack & Basic Strategy Charts</h1>
@@ -97,10 +88,8 @@
 
     <div id="chart-container" style="display:none;">
         <h2 id="chart-title">Basic Strategy Chart</h2>
-        <p class="instructions">On mobile: Use pinch-to-zoom and drag to pan the chart for easier reading.</p>
-        <div id="chart-wrapper">
-            <img id="chart-svg" src="" alt="Basic Strategy Chart">
-        </div>
+        <p class="instructions">Tip for mobile: Pinch to zoom in/out and drag to pan the chart for better readability.</p>
+        <img id="chart-svg" src="" alt="Basic Strategy Chart">
     </div>
 
     <button class="back-btn" onclick="location.href='index.html'">← Back to Menu</button>
@@ -127,8 +116,6 @@
             "single-deck-stays-soft-17": "Single Deck – Dealer Stands on Soft 17"
         };
 
-        let panZoomInstance = null;
-
         function showChart() {
             const selected = document.getElementById('game-select').value;
             const chartPath = charts[selected];
@@ -139,33 +126,7 @@
                 img.src = chartPath;
                 document.getElementById('chart-title').innerText = chartTitle;
                 document.getElementById('chart-container').style.display = 'block';
-
-                // Destroy previous instance if exists
-                if (panZoomInstance) {
-                    panZoomInstance.destroy();
-                    panZoomInstance = null;
-                }
-
-                // Wait for image to load before initializing pan/zoom
-                img.onload = function() {
-                    panZoomInstance = svgPanZoom(img, {
-                        zoomEnabled: true,
-                        panEnabled: true,
-                        controlIconsEnabled: false, // Set to true if you want on-screen buttons
-                        fit: true,
-                        center: true,
-                        minZoom: 1,
-                        maxZoom: 10,
-                        zoomScaleSensitivity: 0.2
-                    });
-
-                    // Better mobile support with Hammer.js (included in svg-pan-zoom)
-                    if (window.Hammer) {
-                        panZoomInstance.setOnPan(function() {}); // Optional tweaks
-                    }
-
-                    document.getElementById('chart-container').scrollIntoView({ behavior: 'smooth' });
-                };
+                document.getElementById('chart-container').scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert("Chart not available for this rule set.");
             }
