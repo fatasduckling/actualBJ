@@ -5,20 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack Rules</title>
     <style>
-        body { background: #0b6623; color: white; text-align: center; padding: 20px; }
-        p { max-width: 800px; margin: 20px auto; line-height: 1.8; font-size: 18px; }
-        button { background: #888; padding: 15px 30px; font-size: 20px; border-radius: 8px; margin-top: 40px; }
+        body { 
+            background: #0b6623; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            text-align: left; 
+            padding: 20px; 
+            line-height: 1.8;
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        h2 { color: gold; margin-top: 40px; border-bottom: 1px solid gold; padding-bottom: 10px; }
+        p { max-width: 900px; margin: 20px auto; font-size: 18px; }
+        ul { max-width: 900px; margin: 20px auto; font-size: 18px; }
+        li { margin-bottom: 15px; }
+        strong { color: gold; }
+        .back-btn {
+            display: block;
+            width: 200px;
+            margin: 50px auto;
+            padding: 15px;
+            background: #888;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+        .back-btn:hover { background: #aaa; }
     </style>
 </head>
 <body>
+
     <h1>Blackjack Rules</h1>
-    <p>The goal is to beat the dealer by having a hand value closer to 21 without going over.</p>
-    <p>• Number cards (2–10) = face value<br>
-       • Face cards (J, Q, K) = 10<br>
-       • Ace = 1 or 11 (whichever helps more)<br>
-       • Blackjack (Ace + 10-value card) pays 3:2 (or 6:5 in some games)</p>
-    <p>Player options: Hit, Stand, Double Down, Split (pairs), Surrender (late, if allowed)</p>
-    <p>Dealer must hit until 17 or higher (soft 17 rules vary).</p>
-    <button onclick="location.href='index.html'">← Back to Menu</button>
+
+    <p style="text-align:center;"><strong>Objective:</strong> Beat the dealer by having a hand total closer to 21 than the dealer’s without exceeding 21 (busting).</p>
+
+    <h2>Card Values</h2>
+    <ul>
+        <li>Number cards (2–10): Face value</li>
+        <li>Face cards (Jack, Queen, King): 10</li>
+        <li>Ace: 1 or 11 (player chooses what is most advantageous without busting)</li>
+    </ul>
+    <p><strong>Blackjack (Natural):</strong> An Ace + 10-value card on the initial two cards. Strongest hand, usually pays 3:2 (some tables pay 6:5).</p>
+
+    <h2>Table Setup & Dealing</h2>
+    <ul>
+        <li>Dealer faces 5–9 player positions behind a semicircular table.</li>
+        <li>1–8 standard 52-card decks are shuffled together.</li>
+        <li>Players place bets in the betting box.</li>
+        <li>Each betting position receives two cards (face-up or face-down depending on game type).</li>
+        <li>Dealer gets one card face-up and (in most games) a second card face-down (hole card).</li>
+        <li>If dealer’s up card is Ace or 10-value, they may peek for blackjack.</li>
+    </ul>
+
+    <h2>Player Decisions (on initial two cards)</h2>
+    <ul>
+        <li><strong>Hit:</strong> Take another card.</li>
+        <li><strong>Stand:</strong> Take no more cards.</li>
+        <li><strong>Double Down:</strong> Double the bet and take exactly one more card.</li>
+        <li><strong>Split:</strong> If pair of same rank, split into two hands (additional bet required). Each hand played separately. Rules on re-splitting/doubling after split vary.</li>
+        <li><strong>Surrender:</strong> (where allowed) Forfeit half the bet and end hand immediately. Usually late surrender only.</li>
+    </ul>
+    <p>After two cards, only Hit and Stand are available. Hand signals are required to avoid disputes.</p>
+
+    <h2>Dealer Play</h2>
+    <ul>
+        <li>Dealer must hit until total is 17 or higher.</li>
+        <li>On soft 17 (17 with Ace counted as 11), dealer either hits or stands depending on table rules.</li>
+        <li>Dealer never doubles, splits, or surrenders.</li>
+    </ul>
+
+    <h2>Outcome & Payouts</h2>
+    <ul>
+        <li>If dealer busts, all remaining players win.</li>
+        <li>Otherwise, each hand is compared to dealer’s:
+            <ul>
+                <li>Higher total → Win (1:1 payout)</li>
+                <li>Lower total → Lose</li>
+                <li>Tie (push) → Bet returned</li>
+            </ul>
+        </li>
+        <li>Player blackjack beats any non-blackjack 21 and pays 3:2 (unless dealer also has blackjack → push).</li>
+    </ul>
+
+    <h2>Insurance</h2>
+    <p>When dealer shows Ace, players may make an insurance side bet (up to half original bet). Pays 2:1 if dealer has blackjack. Insurance is generally a poor bet long-term but can be advantageous with card counting.</p>
+
+    <a href="index.html" class="back-btn">← Back to Menu</a>
+
 </body>
 </html>
