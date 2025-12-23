@@ -3,15 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Counting & Deviations</title>
-    <link rel="stylesheet" href="style.css">
+    <title>How to Card Count – Hi-Lo System</title>
+    <style>
+        body { 
+            background: #0b6623; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            text-align: left; 
+            padding: 20px; 
+            line-height: 1.8;
+        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        h2 { color: gold; margin-top: 40px; border-bottom: 1px solid gold; padding-bottom: 10px; }
+        p { max-width: 900px; margin: 20px auto; font-size: 18px; }
+        ul { max-width: 900px; margin: 20px auto; font-size: 18px; }
+        li { margin-bottom: 15px; }
+        strong { color: gold; }
+        .highlight { 
+            background: rgba(255,215,0,0.2); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+        }
+        table { 
+            width: 80%; 
+            max-width: 600px; 
+            margin: 30px auto; 
+            border-collapse: collapse; 
+            font-size: 18px; 
+        }
+        th, td { 
+            padding: 15px; 
+            text-align: center; 
+            border: 1px solid gold; 
+        }
+        th { background: rgba(0,0,0,0.4); color: gold; }
+        .back-btn {
+            display: block;
+            width: 200px;
+            margin: 50px auto;
+            padding: 15px;
+            background: #888;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+        .back-btn:hover { background: #aaa; }
+    </style>
 </head>
 <body>
-    <h1>How to Card Count (Hi-Lo) & Deviations</h1>
-    <p>Explanation: 2-6 = +1, 7-9 = 0, 10-A = -1. True Count = Running Count / Decks left...</p>
-    <h2>Illustrious 18 Deviations Chart</h2>
-    <img src="illustrious18.png" style="width:100%; max-width:800px;" alt="Illustrious 18">
-    <br><br>
-    <button onclick="history.back()">Back to Menu</button>
+
+    <h1>How to Card Count – Hi-Lo System</h1>
+
+    <p style="text-align:center; font-size:20px;"><strong>The Hi-Lo system is the most popular, balanced, and effective card counting method for beginners and pros alike.</strong></p>
+
+    <h2>Why Card Counting Works</h2>
+    <p>When more high cards (10, J, Q, K, A) remain in the deck, the player has an advantage:</p>
+    <ul>
+        <li>More blackjacks (higher payout)</li>
+        <li>Better chance to double/split successfully</li>
+        <li>Dealer more likely to bust on low upcards</li>
+    </ul>
+    <p>When more low cards remain, the advantage shifts to the house. By tracking the ratio of high to low cards, you know when to bet more.</p>
+
+    <h2>Hi-Lo Card Values</h2>
+    <table>
+        <tr>
+            <th>Cards</th>
+            <th>2 3 4 5 6</th>
+            <th>7 8 9</th>
+            <th>10 J Q K A</th>
+        </tr>
+        <tr>
+            <td><strong>Count</strong></td>
+            <td><span class="highlight">+1</span></td>
+            <td>0</td>
+            <td><span class="highlight">-1</span></td>
+        </tr>
+    </table>
+    <p>As each card is dealt, mentally add or subtract its value from a running total.</p>
+
+    <h2>Running Count (RC)</h2>
+    <p>The cumulative total you keep in your head as cards are dealt.</p>
+    <ul>
+        <li>Starts at 0 at the beginning of a new shoe</li>
+        <li>Increases when low cards (2–6) come out</li>
+        <li>Decreases when high cards (10–A) come out</li>
+    </ul>
+    <p><strong>Example:</strong> Cards dealt: 4 (+1), 8 (0), K (-1), 3 (+1) → Running Count = +1</p>
+
+    <h2>True Count (TC) – The Real Advantage Indicator</h2>
+    <p>Running Count alone isn’t enough in multi-deck games. You must divide by the number of decks remaining.</p>
+    <p><strong>True Count = Running Count ÷ Decks Remaining</strong> (round down or to nearest 0.5)</p>
+    <p><strong>Example:</strong> RC = +8, 2 decks left → TC = +4 (very favorable!)</p>
+    <p>Higher True Count = more high cards left = bet bigger!</p>
+
+    <h2>Betting Strategy (Bet Spread)</h2>
+    <p>Adjust your bet size based on the True Count.</p>
+    <table>
+        <tr><th>True Count</th><th>Bet Size (Units)</th><th>Reason</th></tr>
+        <tr><td>≤ +1</td><td>1 unit (minimum)</td><td>Neutral or house edge</td></tr>
+        <tr><td>+2 to +3</td><td>4–6 units</td><td>Small advantage</td></tr>
+        <tr><td>+4 or higher</td><td>8–12 units</td><td>Strong advantage – max bet</td></tr>
+        <tr><td>Negative</td><td>1 unit</td><td>Avoid playing if possible</td></tr>
+    </table>
+    <p>Spread conservatively to avoid detection (e.g., 1–12 units).</p>
+
+    <h2>Playing Deviations (Index Plays)</h2>
+    <p>At certain True Counts, deviate from basic strategy for extra edge.</p>
+    <ul>
+        <li><strong>Insurance:</strong> Take at TC +3 or higher</li>
+        <li><strong>16 vs 10:</strong> Stand at TC 0 or higher</li>
+        <li><strong>15 vs 10:</strong> Stand at TC +4 or higher</li>
+        <li>And 14 more key plays (Illustrious 18)</li>
+    </ul>
+    <p>These small adjustments add significant long-term profit.</p>
+
+    <h2>Tips for Success</h2>
+    <ul>
+        <li>Practice with a single deck until counting is automatic</li>
+        <li>Use this app’s Speed Counting mode for cancellation drills</li>
+        <li>Keep the count quietly – no talking or big gestures</li>
+        <li>Vary bet spread naturally and play rated to avoid heat</li>
+        <li>Start with low stakes until accurate under pressure</li>
+    </ul>
+
+    <p style="text-align:center; font-size:20px;"><strong>Card counting is legal and powerful — with discipline and practice, you can turn blackjack into a positive expectation game.</strong></p>
+
+    <a href="index.html" class="back-btn">← Back to Menu</a>
+
 </body>
 </html>
