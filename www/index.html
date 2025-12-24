@@ -5,48 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blackjack Trainer Pro</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            background: #0b6623; 
-            color: white; 
-            padding: 20px; 
-            margin: 0; 
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #0b6623, #084f1a);
+            color: white;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            touch-action: manipulation;
         }
-        h1 { margin-bottom: 40px; }
-        button { 
-            display: block; 
-            width: 90%; 
-            max-width: 500px; 
-            margin: 20px auto; 
-            padding: 20px; 
-            font-size: 22px; 
-            background: #c3992a; 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
+        h1 {
+            font-size: 32px;
+            margin: 40px 0 50px;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.8);
+            color: gold;
         }
-        button:hover { background: #d4af37; }
-        .premium { background: #d4af37; color: black; font-weight: bold; }
-        .back { margin-top: 50px; background: gray; }
+        .menu-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            display: block;
+            width: 90%;
+            max-width: 500px;
+            margin: 18px auto;
+            padding: 22px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(to bottom, #d4af37, #c3992a);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            transition: all 0.2s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        button:hover {
+            background: linear-gradient(to bottom, #e6c54a, #d4af37);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.7);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        .premium {
+            background: linear-gradient(to bottom, gold, #b8860b);
+            color: black;
+            font-weight: bold;
+            border: 3px solid #ffd700;
+        }
+        .premium:hover {
+            background: linear-gradient(to bottom, #ffd700, gold);
+        }
+        .back {
+            margin-top: 60px;
+            background: linear-gradient(to bottom, #aaa, #888);
+            color: white;
+        }
+        .back:hover {
+            background: linear-gradient(to bottom, #ccc, #aaa);
+        }
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+                margin: 30px 0 40px;
+            }
+            button {
+                padding: 24px;
+                font-size: 24px;
+                margin: 20px auto;
+                width: 95%;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+            button {
+                font-size: 22px;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>Blackjack Trainer Pro</h1>
     
-    <button onclick="location.href='rules.html'">How to Play Blackjack (Rules)</button>
-    
-    <button onclick="location.href='charts.html'">Basic Strategy Charts</button>
-    
-    <button onclick="location.href='counting.html'">How to Card Count (Hi-Lo)</button>
-    
-    <button onclick="location.href='deviations.html'">Index Plays & Deviations (Illustrious 18)</button>
-    
-    <button onclick="location.href='basic_game.html'">Basic Strategy Practice Game</button>
-    
-    <button class="premium" onclick="location.href='game.html'">Card Counting with Deviations (Premium)</button>
-    
-    <button class="premium" onclick="location.href='speed_counting.html'">Speed Counting (Premium)</button>
+    <div class="menu-container">
+        <button onclick="location.href='rules.html'">How to Play Blackjack (Rules)</button>
+       
+        <button onclick="location.href='charts.html'">Basic Strategy Charts</button>
+       
+        <button onclick="location.href='counting.html'">How to Card Count (Hi-Lo)</button>
+       
+        <button onclick="location.href='deviations.html'">Index Plays & Deviations<br><small style="font-size:16px; font-weight:normal;">Illustrious 18 + Fab 4</small></button>
+       
+        <button onclick="location.href='basic_game.html'">Basic Strategy Practice Game</button>
+       
+        <button class="premium" onclick="location.href='game.html'">Card Counting with Deviations (Premium)</button>
+       
+        <button class="premium" onclick="location.href='speed_counting.html'">Speed Counting Trainer (Premium)</button>
+    </div>
 </body>
 </html>
