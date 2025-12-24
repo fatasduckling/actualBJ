@@ -78,33 +78,40 @@
             background: linear-gradient(to bottom, #ffaa00, #cc7700) !important;
             box-shadow: 0 6px 12px rgba(255,170,0,0.5);
         }
-        /* Perfect Circle Settings Button - Fixed */
+
+        /* PERFECT CIRCLE SETTINGS BUTTON */
         #settings-btn {
             position: fixed;
-            top: 12px;
-            right: 12px;
+            top: 20px;
+            right: 20px;
             z-index: 200;
             background: linear-gradient(to bottom, #e6b800, #c3992a);
             color: white;
             font-size: 28px;
+            
+            /* Circle Logic */
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 0;
+            margin: 0;
+            min-width: 0; /* Reset global button min-width */
+            
+            /* Centering the Icon */
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
+            
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
             border: none;
-            line-height: 1;
         }
         #settings-btn:hover {
             background: linear-gradient(to bottom, #ffcc00, #d4af37);
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(45deg);
         }
-        /* Settings Menu Scrollable on Mobile */
+
         #settings-menu {
             display: none;
             position: fixed;
@@ -122,17 +129,6 @@
             overflow-y: auto;
             box-sizing: border-box;
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-        }
-        #settings-menu::-webkit-scrollbar {
-            width: 8px;
-        }
-        #settings-menu::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-        }
-        #settings-menu::-webkit-scrollbar-thumb {
-            background: gold;
-            border-radius: 10px;
         }
         .settings-grid {
             display: grid;
@@ -176,7 +172,6 @@
             padding: 16px 32px;
             border-radius: 12px;
         }
-        #back-to-menu:hover { background: #888; }
         #feedback {
             min-height: 50px;
             font-size: 24px;
@@ -197,21 +192,20 @@
             margin: 15px 0 10px;
             font-weight: bold;
         }
-        #count-accuracy { font-size: 16px; }
         @media (max-width: 480px) {
             .card-img { max-height: 110px; }
             button { padding: 12px 18px; font-size: 17px; min-width: 90px; }
             h1 { font-size: 24px; }
             #settings-btn {
-                width: 50px;
-                height: 50px;
+                width: 54px;
+                height: 54px;
                 font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-<!-- Perfect Circle Settings Button -->
+
 <button id="settings-btn" title="Settings">⚙️</button>
 
 <div id="overlay"></div>
@@ -219,7 +213,7 @@
     <h2>Game Settings</h2>
     <div class="settings-grid">
         <div class="setting-item">
-            <label>Number of Simultaneous Hands:</label>
+            <label>Num Hands:</label>
             <select id="num-hands">
                 <option value="1" selected>1 Hand</option>
                 <option value="2">2 Hands</option>
@@ -277,7 +271,7 @@
             </select>
         </div>
         <div class="setting-item">
-            <label>Starting Bankroll ($):</label>
+            <label>Starting Bankroll:</label>
             <input type="number" id="starting-bankroll" value="5000">
         </div>
     </div>
@@ -319,7 +313,7 @@
     <div id="end-round" style="display:none;" class="section">
         <h2>End of Round - Running Count Guess</h2>
         <p>Count accuracy: <span id="count-accuracy">0/0 (0%)</span></p>
-        <input type="number" id="count-guess" placeholder="Enter Running Count" style="padding:10px; font-size:18px; width:120px;">
+        <input type="number" id="count-guess" placeholder="RC" style="padding:10px; font-size:18px; width:120px;">
         <button id="check-count-btn">Submit Guess</button>
         <p id="count-feedback"></p>
     </div>
@@ -327,7 +321,6 @@
 </div>
 
 <script>
-// (All JavaScript remains unchanged from previous version)
 let deck = [];
 let dealerHand = [];
 let playerHands = [];
@@ -341,32 +334,10 @@ let countingEnabled = true, guessCountEnabled = true, doubleAfterSplit = true;
 let numSimultaneousHands = 1;
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-const illustrious18 = {
-    insurance: 3,
-    '16vs10': 0,
-    '15vs10': 4,
-    '11vsA': 1,
-    '10vs10': 4,
-    '10vsA': 3,
-    '12vs3': 2,
-    '12vs2': 3,
-    '9vs2': 1,
-    '9vs7': 3,
-    '8vs6': 2,
-    '13vs2': -1,
-    '12vs4': 0,
-    '12vs5': -1,
-    '12vs6': -2,
-    '1010vs5': 5,
-    '1010vs6': 4,
-    '16vs9': 5
-};
-const fab4 = {
-    '15vs9': 3,
-    '15vs10': 0,
-    '15vsA': 2,
-    '14vs10': 4
-};
+
+const illustrious18 = { insurance: 3, '16vs10': 0, '15vs10': 4, '11vsA': 1, '10vs10': 4, '10vsA': 3, '12vs3': 2, '12vs2': 3, '9vs2': 1, '9vs7': 3, '8vs6': 2, '13vs2': -1, '12vs4': 0, '12vs5': -1, '12vs6': -2, '1010vs5': 5, '1010vs6': 4, '16vs9': 5 };
+const fab4 = { '15vs9': 3, '15vs10': 0, '15vsA': 2, '14vs10': 4 };
+
 function createDeck() {
     deck = [];
     for (let d = 0; d < numDecks; d++) {
@@ -562,11 +533,6 @@ function playerMove(action) {
     if (allCorrect.has(action)) {
         correctDecisions++;
         msg = '✓ Correct!';
-        if (deviation.has(action)) {
-            msg += ' (Great deviation play!)';
-        } else if (basic.has(action)) {
-            msg += ' (Solid basic strategy)';
-        }
         document.getElementById('feedback').style.color = 'lime';
     } else {
         msg = '✗ Wrong!';
@@ -574,7 +540,6 @@ function playerMove(action) {
         if (deviation.size > 0) correctList.push(...deviation);
         correctList.push(...basic);
         msg += ` Correct: ${[...new Set(correctList)].map(a => a.toUpperCase()).join(' or ')}`;
-        if (deviation.size > 0) msg += ' (Deviation opportunity missed)';
         document.getElementById('feedback').style.color = 'red';
     }
     document.getElementById('feedback').innerText = msg;
@@ -633,13 +598,9 @@ function evaluateAllHands() {
         const pTotal = handTotal(h);
         if (pTotal > 21) return;
         const isBJ = pTotal === 21 && h.cards.length === 2;
-        if (isBJ && dTotal !== 21) {
-            bankroll += h.bet * (1 + bjPayout);
-        } else if (dTotal > 21 || pTotal > dTotal) {
-            bankroll += h.bet * 2;
-        } else if (pTotal === dTotal) {
-            bankroll += h.bet;
-        }
+        if (isBJ && dTotal !== 21) bankroll += h.bet * (1 + bjPayout);
+        else if (dTotal > 21 || pTotal > dTotal) bankroll += h.bet * 2;
+        else if (pTotal === dTotal) bankroll += h.bet;
     });
     if (guessCountEnabled) {
         gamePhase = 'endround';
@@ -676,16 +637,13 @@ function startHand() {
     if (betPerHand * numSimultaneousHands > bankroll) { alert("Insufficient funds!"); return; }
     bankroll -= betPerHand * numSimultaneousHands;
     playerHands = [];
-    for (let i = 0; i < numSimultaneousHands; i++) {
-        playerHands.push({cards: [], bet: betPerHand});
-    }
+    for (let i = 0; i < numSimultaneousHands; i++) playerHands.push({cards: [], bet: betPerHand});
     dealerHand = [];
     currentHandIndex = 0;
     gamePhase = 'playing';
     document.getElementById('feedback').innerText = 'Dealing...';
     playerHands.forEach(h => { dealCard(h.cards); dealCard(h.cards); });
-    dealCard(dealerHand);
-    dealCard(dealerHand);
+    dealCard(dealerHand); dealCard(dealerHand);
     if (dealerHand[0]?.startsWith('A')) gamePhase = 'insurance';
     updateDisplay();
 }
@@ -712,7 +670,7 @@ document.getElementById('insurance-no').onclick = () => {
         document.getElementById('feedback').innerText = "✓ Correct – no insurance";
         document.getElementById('feedback').style.color = "lime";
     } else {
-        document.getElementById('feedback').innerText = "✗ Missed deviation – should take insurance!";
+        document.getElementById('feedback').innerText = "✗ Missed deviation – take insurance!";
         document.getElementById('feedback').style.color = "red";
     }
     gamePhase = 'playing';
@@ -727,7 +685,7 @@ document.getElementById('check-count-btn').onclick = () => {
         document.getElementById('count-feedback').innerText = "✓ Perfect count!";
         document.getElementById('count-feedback').style.color = "lime";
     } else {
-        document.getElementById('count-feedback').innerText = `✗ Wrong – Running Count was ${actual}`;
+        document.getElementById('count-feedback').innerText = `✗ Wrong – RC was ${actual}`;
         document.getElementById('count-feedback').style.color = "red";
     }
     const pct = Math.round((correctCountGuesses / totalCountGuesses) * 100);
@@ -735,8 +693,10 @@ document.getElementById('check-count-btn').onclick = () => {
     setTimeout(() => {
         gamePhase = 'betting';
         document.getElementById('feedback').innerText = "Next hand ready";
+        document.getElementById('count-guess').value = '';
+        document.getElementById('count-feedback').innerText = '';
         updateDisplay();
-    }, 2500);
+    }, 2000);
 };
 function applySettings() {
     numDecks = parseInt(document.getElementById('num-decks').value);
