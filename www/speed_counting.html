@@ -82,7 +82,8 @@
             display: block;
             border: 2px solid gold;
         }
-        /* Perfect Circle Settings Button - Final Fix */
+
+        /* FIXED SETTINGS BUTTON: Perfect Circle */
         #settings-btn {
             position: fixed;
             top: 15px;
@@ -91,28 +92,25 @@
             background: linear-gradient(to bottom, #e6b800, #c3992a);
             color: white;
             font-size: 28px;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
+            width: 65px;      /* Equal width */
+            height: 65px;     /* Equal height */
+            border-radius: 50%; /* Perfect circle */
+            display: flex;    /* Flex for centering */
             align-items: center;
             justify-content: center;
             padding: 0;
+            margin: 0;
             border: none;
-            overflow: hidden;
-        }
-        #settings-btn svg {
-            width: 40px;
-            height: 40px;
-            fill: white;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1;
         }
         #settings-btn:hover {
             background: linear-gradient(to bottom, #ffcc00, #d4af37);
             transform: scale(1.1);
         }
+
         /* Settings Menu */
         #settings-menu {
             display: none;
@@ -199,14 +197,11 @@
             font-size: 20px;
             margin: 20px 0;
         }
+
         /* Mobile Optimizations */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 24px;
-            }
-            .card-img {
-                max-height: 120px;
-            }
+            h1 { font-size: 24px; }
+            .card-img { max-height: 120px; }
             button {
                 padding: 18px 36px;
                 font-size: 22px;
@@ -215,26 +210,18 @@
             #settings-btn {
                 width: 60px;
                 height: 60px;
+                font-size: 24px;
             }
-            #settings-btn svg {
-                width: 34px;
-                height: 34px;
-            }
-            #feedback {
-                font-size: 28px;
-            }
+            #feedback { font-size: 28px; }
         }
     </style>
 </head>
 <body>
-<!-- Perfect Circle Settings Button with SVG Gear Icon -->
-<button id="settings-btn" title="Settings">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19.14 12.94c.04-.3.06-.61.06-.92 0-.31-.02-.62-.06-.92l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.44h-3.84a.5.5 0 0 0-.5.44l-.36 2.54c-.59.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 0 0-.59.22l-1.92 3.32c-.12.22-.07.47.12.61l2.03 1.58c-.04.3-.06.61-.06.92s.02.62.06.92L3.91 18.9a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.44.5.44h3.84c.26 0 .45-.2.5-.44l.36-2.54c.59-.24 1.12-.56 1.62-.94l2.39.96c.22.07.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.03-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/>
-    </svg>
-</button>
+
+<button id="settings-btn" title="Settings">⚙️</button>
 
 <div id="overlay"></div>
+
 <div id="settings-menu">
     <h2>Speed Counting Settings</h2>
     <div class="settings-grid">
@@ -246,8 +233,10 @@
     </div>
     <button id="apply-settings-btn">Apply & Close</button>
 </div>
+
 <div id="game">
     <h1>Speed Counting Trainer (Premium)</h1>
+    
     <div class="section">
         <label>Mode:</label><br>
         <select id="mode-select">
@@ -255,16 +244,21 @@
             <option value="deck">Deck Mode (guess omitted card)</option>
         </select>
     </div>
+
     <div class="section">
         <p>Correct: <span id="correct">0</span> | Total: <span id="total">0</span> | Accuracy: <span id="accuracy">0%</span></p>
     </div>
+
     <div class="section" id="batch-controls">
         <button id="start-batch">Start New Batch</button>
     </div>
+
     <div class="section" id="deck-controls" style="display:none;">
         <button id="start-deck">Start Full Deck</button>
     </div>
+
     <div class="section cards" id="cards-display"></div>
+
     <div class="section" id="guess-section" style="display:none;">
         <p id="prompt">What is the running count?</p>
         <input type="number" id="guess-input" placeholder="Enter value">
@@ -272,8 +266,10 @@
         <div id="feedback"></div>
         <div id="omitted-reveal"></div>
     </div>
+
     <button id="back-to-menu" onclick="location.href='index.html'">← Back to Menu</button>
 </div>
+
 <script>
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -415,26 +411,30 @@ function checkGuess() {
     }
 }
 
-// Settings
+// Settings logic
 document.getElementById('settings-btn').onclick = () => {
     document.getElementById('settings-menu').style.display = 'block';
     document.getElementById('overlay').style.display = 'block';
     document.getElementById('default-speed').value = cardDelay;
     document.getElementById('default-speed-value').innerText = `${cardDelay} ms`;
 };
+
 document.getElementById('apply-settings-btn').onclick = () => {
     cardDelay = parseInt(document.getElementById('default-speed').value);
     document.getElementById('settings-menu').style.display = 'none';
     document.getElementById('overlay').style.display = 'none';
 };
+
 document.getElementById('overlay').onclick = () => {
     document.getElementById('settings-menu').style.display = 'none';
     document.getElementById('overlay').style.display = 'none';
 };
+
 document.getElementById('default-speed').oninput = function() {
     document.getElementById('default-speed-value').innerText = `${this.value} ms`;
 };
-// Mode switch
+
+// Mode switching logic
 document.getElementById('mode-select').onchange = function() {
     mode = this.value;
     document.getElementById('batch-controls').style.display = mode === 'batch' ? 'block' : 'none';
@@ -450,12 +450,14 @@ document.getElementById('mode-select').onchange = function() {
     guessSubmitted = false;
     document.getElementById('submit-guess').disabled = false;
 };
+
 document.getElementById('start-batch').onclick = startBatch;
 document.getElementById('start-deck').onclick = startDeckMode;
 document.getElementById('submit-guess').onclick = checkGuess;
 document.getElementById('guess-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') checkGuess();
 });
+
 updateAccuracy();
 </script>
 </body>
