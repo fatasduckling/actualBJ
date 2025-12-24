@@ -70,12 +70,13 @@
             transition: all 0.2s;
         }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
-        button.legal {
-            background: linear-gradient(to bottom, #e6b800, #c3992a);
-            box-shadow: 0 6px 12px rgba(195,153,42,0.5);
+        button.correct {
+            background: linear-gradient(to bottom, #00ff00, #009900) !important;
+            box-shadow: 0 6px 12px rgba(0,255,0,0.5);
         }
-        button.legal:hover {
-            background: linear-gradient(to bottom, #ffcc00, #d4af37);
+        button.deviation {
+            background: linear-gradient(to bottom, #ffaa00, #cc7700) !important;
+            box-shadow: 0 6px 12px rgba(255,170,0,0.5);
         }
         #settings-btn {
             position: fixed;
@@ -93,6 +94,9 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.6);
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #settings-btn:hover {
             background: linear-gradient(to bottom, #ffcc00, #d4af37);
@@ -157,8 +161,8 @@
         }
         #back-to-menu:hover { background: #888; }
         #feedback {
-            min-height: 40px;
-            font-size: 22px;
+            min-height: 50px;
+            font-size: 24px;
             font-weight: bold;
             margin: 20px 0;
             text-shadow: 0 2px 4px black;
@@ -222,9 +226,9 @@
         <div class="setting-item">
             <label>Decks:</label>
             <select id="num-decks">
-                <option value="1">1</option>
+                <option value="1" selected>1</option>
                 <option value="2">2</option>
-                <option value="6" selected>6</option>
+                <option value="6">6</option>
                 <option value="8">8</option>
             </select>
         </div>
@@ -256,13 +260,12 @@
     </div>
     <button id="apply-settings-btn">Apply & Close</button>
 </div>
-
 <div id="game">
     <h1>Hi-Lo Counting Trainer</h1>
-   
+  
     <div class="section stats">
         <div>Bankroll: $<span id="bankroll">5000</span></div>
-        <div>Decks Left: <span id="decks-left">6.0</span></div>
+        <div>Decks Left: <span id="decks-left">1.0</span></div>
         <div>True Count: <span id="true-count">0.0</span></div>
     </div>
     <div class="section">
@@ -279,21 +282,16 @@
         <h2>Dealer: <span id="dealer-total">?</span></h2>
         <div id="dealer-cards" class="cards"></div>
     </div>
-
     <div id="player-hands-container"></div>
-
     <div id="insurance-actions" class="section" style="display:none;">
         <p style="color:orange; font-size:1.3em;font-weight:bold;">Dealer shows Ace – Insurance?</p>
         <button id="insurance-yes">Yes</button>
         <button id="insurance-no">No</button>
     </div>
-
     <div id="actions" class="section" style="display:none;"></div>
-
     <div class="section">
         <p id="feedback">Ready — press Deal</p>
     </div>
-
     <div id="end-round" style="display:none;" class="section">
         <h2>End of Round - Running Count Guess</h2>
         <p>Count accuracy: <span id="count-accuracy">0/0 (0%)</span></p>
@@ -301,10 +299,8 @@
         <button id="check-count-btn">Submit Guess</button>
         <p id="count-feedback"></p>
     </div>
-
     <button id="back-to-menu" onclick="location.href='index.html'">← Back to Menu</button>
 </div>
-
 <script>
 // Global State
 let deck = [];
@@ -315,23 +311,40 @@ let seenCards = [];
 let bankroll = 5000, baseUnit = 25, betPerHand = 25;
 let gamePhase = 'betting';
 let totalDecisions = 0, correctDecisions = 0, totalCountGuesses = 0, correctCountGuesses = 0;
-
 // Settings
-let numDecks = 6, dealerHitsSoft17 = true, surrenderEnabled = true, bjPayout = 1.5;
+let numDecks = 1, dealerHitsSoft17 = true, surrenderEnabled = true, bjPayout = 1.5;
 let countingEnabled = true, guessCountEnabled = true, doubleAfterSplit = true;
 let numSimultaneousHands = 1;
-
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
-// Full Illustrious 18 + Fab 4
-const indices = {
-    insurance: 3.0,
-    '16vs10': 0, '15vs10': 4, '10vs10': 4, '10vsA': 3,
-    '12vs3': 2, '12vs2': 3, '11vsA': 1, '9vs2': 1, '9vs7': 3, '8vs6': 2,
-    '13vs2': -1, '12vs4': 0, '12vs5': -2, '12vs6': -1,
-    '15vs9': 3, '15vs10': 0, '15vsA': -1, '14vs10': 3,
-    '1010vs5': 5, '1010vs6': 4
+// Strict Illustrious 18 + Fab 4 indices (multi-deck H17 base, widely accepted values)
+const illustrious18 = {
+    insurance: 3,
+    '16vs10': 0,
+    '15vs10': 4,
+    '11vsA': 1,
+    '10vs10': 4,
+    '10vsA': 3,
+    '12vs3': 2,
+    '12vs2': 3,
+    '9vs2': 1,
+    '9vs7': 3,
+    '8vs6': 2,
+    '13vs2': -1,
+    '12vs4': 0,
+    '12vs5': -1,
+    '12vs6': -2,
+    '1010vs5': 5,
+    '1010vs6': 4,
+    '16vs9': 5
+};
+
+const fab4 = {
+    '15vs9': 3,
+    '15vs10': 0,
+    '15vsA': 2,
+    '14vs10': 4
 };
 
 function createDeck() {
@@ -383,7 +396,7 @@ function isSoftHand(handObj) {
         else v = parseInt(v);
         total += v;
     });
-    return aces > 0 && total - 10 <= 21;
+    return aces > 0 && total - 10 * aces <= 11;
 }
 function getHiLoRC() {
     return seenCards.reduce((sum, c) => {
@@ -399,7 +412,8 @@ function getTrueCount() {
     return Math.round((rc / decksLeft) * 10) / 10;
 }
 function getUpcardValue() {
-    const up = dealerHand[0].slice(0, -1);
+    const up = dealerHand[0]?.slice(0, -1);
+    if (!up) return null;
     if (up === 'A') return 'A';
     return (['J','Q','K'].includes(up)) ? 10 : parseInt(up);
 }
@@ -412,93 +426,93 @@ function getCardImageHTML(card) {
     return `<img src="cards/${fileName}" class="card-img" alt="${card}">`;
 }
 
-// 100% PERFECT Hi-Lo Strategy (Illustrious 18 + Fab 4 + full basic)
-function getCorrectAction(handObj) {
+// Returns {basic: Set, deviation: Set} of correct actions
+function getCorrectActions(handObj) {
     const hand = handObj.cards;
     const total = handTotal(handObj);
     const tc = countingEnabled ? getTrueCount() : 0;
     const up = getUpcardValue();
-    const rank = hand.length === 2 ? rankValue(hand[0]) : null;
+    const isPair = hand.length === 2 && rankValue(hand[0]) === rankValue(hand[1]);
+    const rank = isPair ? rankValue(hand[0]) : null;
     const isSoft = isSoftHand(handObj);
-    let correct = new Set();
 
-    // === DEVIATIONS (Illustrious 18 + Fab 4) ===
+    const basicCorrect = new Set();
+    const deviationCorrect = new Set();
+
+    // === Illustrious 18 Deviations ===
     if (countingEnabled) {
-        if (up === 'A' && tc >= indices.insurance) correct.add('insurance');
+        if (up === 'A' && tc >= illustrious18.insurance) deviationCorrect.add('insurance');
 
-        if (surrenderEnabled && hand.length === 2) {
-            if (total === 15 && up === 9 && tc >= indices['15vs9']) correct.add('surrender');
-            if (total === 15 && up === 10 && tc >= indices['15vs10']) correct.add('surrender');
-            if (total === 15 && up === 'A' && tc >= indices['15vsA']) correct.add('surrender');
-            if (total === 14 && up === 10 && tc >= indices['14vs10']) correct.add('surrender');
-        }
-
-        if (total === 16 && up === 10 && tc >= indices['16vs10']) correct.add('stand');
-        if (total === 15 && up === 10 && tc >= indices['15vs10']) correct.add('stand');
-        if (total === 13 && up === 2 && tc >= indices['13vs2']) correct.add('stand');
-        if (total === 12 && up === 3 && tc >= indices['12vs3']) correct.add('stand');
-        if (total === 12 && up === 2 && tc >= indices['12vs2']) correct.add('stand');
-        if (total === 12 && up === 4 && tc >= indices['12vs4']) correct.add('stand');
-        if (total === 12 && up === 5 && tc >= indices['12vs5']) correct.add('stand');
-        if (total === 12 && up === 6 && tc >= indices['12vs6']) correct.add('stand');
-
-        if (total === 11 && up === 'A' && tc >= indices['11vsA']) correct.add('double');
-        if (total === 10 && up === 10 && tc >= indices['10vs10']) correct.add('double');
-        if (total === 10 && up === 'A' && tc >= indices['10vsA']) correct.add('double');
-        if (total === 9 && up === 2 && tc >= indices['9vs2']) correct.add('double');
-        if (total === 9 && up === 7 && tc >= indices['9vs7']) correct.add('double');
-        if (total === 8 && up === 6 && tc >= indices['8vs6']) correct.add('double');
-
-        if (rank === '10') {
-            if (up === 5 && tc >= indices['1010vs5']) correct.add('split');
-            if (up === 6 && tc >= indices['1010vs6']) correct.add('split');
+        if (total === 16 && up === 10 && tc >= illustrious18['16vs10']) deviationCorrect.add('stand');
+        if (total === 15 && up === 10 && tc >= illustrious18['15vs10']) deviationCorrect.add('stand');
+        if (total === 11 && up === 'A' && tc >= illustrious18['11vsA']) deviationCorrect.add('double');
+        if (total === 10 && up === 10 && tc >= illustrious18['10vs10']) deviationCorrect.add('double');
+        if (total === 10 && up === 'A' && tc >= illustrious18['10vsA']) deviationCorrect.add('double');
+        if (total === 12 && up === 3 && tc >= illustrious18['12vs3']) deviationCorrect.add('stand');
+        if (total === 12 && up === 2 && tc >= illustrious18['12vs2']) deviationCorrect.add('stand');
+        if (total === 9 && up === 2 && tc >= illustrious18['9vs2']) deviationCorrect.add('double');
+        if (total === 9 && up === 7 && tc >= illustrious18['9vs7']) deviationCorrect.add('double');
+        if (total === 8 && up === 6 && tc >= illustrious18['8vs6']) deviationCorrect.add('double');
+        if (total === 13 && up === 2 && tc >= illustrious18['13vs2']) deviationCorrect.add('stand');
+        if (total === 12 && up === 4 && tc >= illustrious18['12vs4']) deviationCorrect.add('stand');
+        if (total === 12 && up === 5 && tc >= illustrious18['12vs5']) deviationCorrect.add('stand');
+        if (total === 12 && up === 6 && tc >= illustrious18['12vs6']) deviationCorrect.add('stand');
+        if (total === 16 && up === 9 && tc >= illustrious18['16vs9']) deviationCorrect.add('stand');
+        if (isPair && rank === '10') {
+            if (up === 5 && tc >= illustrious18['1010vs5']) deviationCorrect.add('stand');
+            if (up === 6 && tc >= illustrious18['1010vs6']) deviationCorrect.add('stand');
         }
     }
 
-    // === BASIC STRATEGY (full, including soft hands) ===
+    // === Fab 4 Surrender Deviations ===
+    if (countingEnabled && surrenderEnabled && hand.length === 2) {
+        if (total === 15 && up === 9 && tc >= fab4['15vs9']) deviationCorrect.add('surrender');
+        if (total === 15 && up === 10 && tc >= fab4['15vs10']) deviationCorrect.add('surrender');
+        if (total === 15 && up === 'A' && tc >= fab4['15vsA']) deviationCorrect.add('surrender');
+        if (total === 14 && up === 10 && tc >= fab4['14vs10']) deviationCorrect.add('surrender');
+    }
+
+    // === Basic Strategy (full standard for multi-deck H17) ===
     if (hand.length === 2) {
         // Splits
-        if (rank === 'A' || rank === '8') correct.add('split');
-        if (rank === '9' && up <= 9 && up !== 7) correct.add('split');
-        if (rank === '7' && up <= 7) correct.add('split');
-        if (rank === '6' && up <= 6) correct.add('split');
-        if (rank === '5') {} // Never
-        if (rank === '4' && (up === 5 || up === 6)) correct.add('split');
-        if ((rank === '3' || rank === '2') && up <= 7) correct.add('split');
+        if (rank === 'A' || rank === '8') basicCorrect.add('split');
+        if (rank === '9' && ![7].includes(up)) basicCorrect.add('split');
+        if (rank === '7' && up <= 7) basicCorrect.add('split');
+        if (rank === '6' && up <= 6) basicCorrect.add('split');
+        if (rank === '4' && [5,6].includes(up) && doubleAfterSplit) basicCorrect.add('split');
+        if ((rank === '3' || rank === '2') && up <= 7) basicCorrect.add('split');
 
-        // Surrender (basic)
+        // Basic Surrender
         if (surrenderEnabled) {
-            if (total === 16 && up >= 9) correct.add('surrender');
-            if (total === 15 && up === 10) correct.add('surrender');
+            if (total === 16 && up >= 9) basicCorrect.add('surrender');
+            if (total === 15 && up === 10) basicCorrect.add('surrender');
         }
 
         // Doubles
-        if (total === 11) correct.add('double');
-        if (total === 10 && up <= 9) correct.add('double');
-        if (total === 9 && up >= 3 && up <= 6) correct.add('double');
+        if (total === 11) basicCorrect.add('double');
+        if (total === 10 && up <= 9) basicCorrect.add('double');
+        if (total === 9 && up >= 3 && up <= 6) basicCorrect.add('double');
     }
 
-    // Soft hands
+    // Soft doubles/stands
     if (isSoft) {
-        if (total >= 19) correct.add('stand');
+        if (total >= 19) basicCorrect.add('stand');
         if (total === 18) {
-            if (up <= 6) correct.add('double');
-            else if (up <= 8) correct.add('stand');
-            else correct.add('hit');
+            if (up <= 6) basicCorrect.add('double');
+            else if (up <= 8) basicCorrect.add('stand');
+            else basicCorrect.add('hit');
         }
-        if (total === 17) {
-            if (up <= 6) correct.add('double');
-            else correct.add('hit');
-        }
-        if (total <= 16) correct.add('hit');
+        if (total === 17 && up <= 6) basicCorrect.add('double');
+        if (total <= 16) basicCorrect.add('hit');
+    } else {
+        // Hard stands
+        if (total >= 17) basicCorrect.add('stand');
+        if (total <= 11) basicCorrect.add('hit');
+        if (total >= 12 && total <= 16 && up <= 6) basicCorrect.add('stand');
+        if (total >= 12 && total <= 16 && up >= 7) basicCorrect.add('hit');
     }
 
-    // Hard totals
-    if (total >= 17) correct.add('stand');
-    if (total <= 11) correct.add('hit');
-    if (total >= 12 && total <= 16 && up <= 6) correct.add('stand');
-
-    return correct;
+    return { basic: basicCorrect, deviation: deviationCorrect };
 }
 
 function updatePlayerHandsDisplay() {
@@ -515,133 +529,91 @@ function updatePlayerHandsDisplay() {
         container.appendChild(div);
     });
 }
+
 function updateActionButtons() {
     const container = document.getElementById('actions');
     container.innerHTML = '';
     const handObj = playerHands[currentHandIndex];
-    const hand = handObj.cards;
-    const correct = getCorrectAction(handObj);
+    const { basic, deviation } = getCorrectActions(handObj);
 
+    const allCorrect = new Set([...basic, ...deviation]);
     const actions = ['hit', 'stand', 'double', 'split', 'surrender'];
 
     actions.forEach(act => {
         let show = true;
-        if (act === 'double') {
-            if (hand.length > 2 && !doubleAfterSplit) show = false;
-            if (hand.length !== 2 && doubleAfterSplit) show = false;
-        }
-        if (act === 'split' && !isSplittable(handObj)) show = false;
-        if (act === 'surrender' && (!surrenderEnabled || hand.length > 2)) show = false;
+        if (act === 'double') show = handObj.cards.length === 2 || (doubleAfterSplit && handObj.cards.length > 2);
+        if (act === 'split') show = isSplittable(handObj);
+        if (act === 'surrender') show = surrenderEnabled && handObj.cards.length === 2;
 
         if (show) {
             const btn = document.createElement('button');
             btn.textContent = act.charAt(0).toUpperCase() + act.slice(1);
             btn.onclick = () => playerMove(act);
-            if (correct.has(act)) btn.classList.add('legal');
+
+            if (allCorrect.has(act)) {
+                btn.classList.add('correct');
+                if (deviation.has(act)) btn.classList.add('deviation');
+            }
             container.appendChild(btn);
         }
     });
 }
-function updateDisplay() {
-    document.getElementById('bankroll').innerText = bankroll.toLocaleString();
-    document.getElementById('decks-left').innerText = (deck.length / 52).toFixed(1);
-    document.getElementById('true-count').innerText = countingEnabled ? getTrueCount() : 'N/A';
 
-    const pct = totalDecisions === 0 ? 0 : Math.round((correctDecisions / totalDecisions) * 100);
-    document.getElementById('play-accuracy').innerText = `Correct plays: ${correctDecisions}/${totalDecisions} (${pct}%)`;
-
-    const tc = getTrueCount();
-    let units = 1;
-    if (tc >= 2) units = 5;
-    if (tc >= 4) units = 12;
-    document.getElementById('bet-suggestion').innerText = `Suggested bet: $${baseUnit * units} (${units} units)`;
-
-    const hideDealer = gamePhase === 'playing' || gamePhase === 'insurance';
-    document.getElementById('dealer-cards').innerHTML = hideDealer
-        ? `<img src="cards/back.svg" class="card-img">` + getCardImageHTML(dealerHand[0])
-        : dealerHand.map(getCardImageHTML).join('');
-    document.getElementById('dealer-total').innerText = hideDealer ? '?' : handTotal({cards: dealerHand});
-
-    updatePlayerHandsDisplay();
-
-    document.getElementById('actions').style.display = gamePhase === 'playing' ? 'block' : 'none';
-    document.getElementById('insurance-actions').style.display = gamePhase === 'insurance' ? 'block' : 'none';
-    document.getElementById('deal-button').style.display = gamePhase === 'betting' ? 'inline-block' : 'none';
-    document.getElementById('end-round').style.display = gamePhase === 'endround' ? 'block' : 'none';
-
-    if (gamePhase === 'playing') updateActionButtons();
-}
-function startHand() {
-    betPerHand = parseInt(document.getElementById('bet-input').value) || 25;
-    if (betPerHand * numSimultaneousHands > bankroll) { alert("Insufficient funds!"); return; }
-
-    bankroll -= betPerHand * numSimultaneousHands;
-    playerHands = [];
-    for (let i = 0; i < numSimultaneousHands; i++) {
-        playerHands.push({cards: [], bet: betPerHand});
-    }
-    dealerHand = [];
-    currentHandIndex = 0;
-    gamePhase = 'playing';
-
-    document.getElementById('feedback').innerText = 'Dealing...';
-
-    playerHands.forEach(h => { dealCard(h.cards); dealCard(h.cards); });
-    dealCard(dealerHand);
-    dealCard(dealerHand);
-
-    if (dealerHand[0].startsWith('A')) gamePhase = 'insurance';
-
-    updateDisplay();
-}
 function playerMove(action) {
     const handObj = playerHands[currentHandIndex];
-    const hand = handObj.cards;
+    const { basic, deviation } = getCorrectActions(handObj);
+    const allCorrect = new Set([...basic, ...deviation]);
 
-    let legal = false;
-    if (action === 'hit' || action === 'stand') legal = true;
-    if (action === 'double') legal = (hand.length === 2) || (hand.length > 2 && doubleAfterSplit);
-    if (action === 'split') legal = isSplittable(handObj);
-    if (action === 'surrender') legal = surrenderEnabled && hand.length === 2;
-
-    if (!legal) return;
-
-    const correct = getCorrectAction(handObj);
     totalDecisions++;
-    if (correct.has(action)) {
+    let msg = '';
+    if (allCorrect.has(action)) {
         correctDecisions++;
-        document.getElementById('feedback').innerText = "✓ Perfect!";
-        document.getElementById('feedback').style.color = "lime";
+        msg = '✓ Correct!';
+        if (deviation.has(action)) {
+            msg += ' (Great deviation play!)';
+        } else if (basic.has(action)) {
+            msg += ' (Solid basic strategy)';
+        }
+        document.getElementById('feedback').style.color = 'lime';
     } else {
-        document.getElementById('feedback').innerText = `✗ Wrong – correct: ${[...correct].map(a => a.toUpperCase()).join('/')}`;
-        document.getElementById('feedback').style.color = "red";
+        msg = '✗ Wrong!';
+        const correctList = [];
+        if (deviation.size > 0) correctList.push(...deviation);
+        correctList.push(...basic);
+        msg += ` Correct: ${[...new Set(correctList)].map(a => a.toUpperCase()).join(' or ')}`;
+        if (deviation.size > 0) msg += ' (Deviation opportunity missed)';
+        document.getElementById('feedback').style.color = 'red';
     }
+    document.getElementById('feedback').innerText = msg;
 
+    // Execute move...
     if (action === 'hit') {
-        dealCard(hand);
+        dealCard(handObj.cards);
         if (handTotal(handObj) > 21) moveToNextHand();
     } else if (action === 'stand') {
         moveToNextHand();
     } else if (action === 'double') {
         bankroll -= handObj.bet;
         handObj.bet *= 2;
-        dealCard(hand);
+        dealCard(handObj.cards);
         moveToNextHand();
     } else if (action === 'surrender') {
         bankroll += Math.floor(handObj.bet / 2);
         moveToNextHand();
     } else if (action === 'split') {
         bankroll -= handObj.bet;
-        const card = hand.pop();
+        const card = handObj.cards.pop();
         const newHand = {cards: [card], bet: handObj.bet};
-        dealCard(hand);
+        dealCard(handObj.cards);
         dealCard(newHand.cards);
         playerHands.splice(currentHandIndex + 1, 0, newHand);
         updateDisplay();
+        return; // Re-evaluate actions for current hand
     }
-
     updateDisplay();
 }
+
+// Rest of functions unchanged (moveToNextHand, dealerPlay, evaluateAllHands, etc.)
 function moveToNextHand() {
     currentHandIndex++;
     if (currentHandIndex >= playerHands.length) {
@@ -655,8 +627,8 @@ function dealerPlay() {
     updateDisplay();
     const step = () => {
         const total = handTotal({cards: dealerHand});
-        const soft = handTotal({cards: dealerHand}) === 17 && dealerHand.some(c => c.startsWith('A'));
-        if (total < 17 || (soft && dealerHitsSoft17)) {
+        const soft = isSoftHand({cards: dealerHand});
+        if (total < 17 || (total === 17 && soft && dealerHitsSoft17)) {
             dealCard(dealerHand);
             updateDisplay();
             setTimeout(step, 800);
@@ -671,15 +643,15 @@ function evaluateAllHands() {
     playerHands.forEach(h => {
         const pTotal = handTotal(h);
         if (pTotal > 21) return;
-        if (pTotal === 21 && h.cards.length === 2) {
-            bankroll += h.bet * (2 + bjPayout);
+        const isBJ = pTotal === 21 && h.cards.length === 2;
+        if (isBJ && dTotal !== 21) {
+            bankroll += h.bet * (1 + bjPayout);
         } else if (dTotal > 21 || pTotal > dTotal) {
             bankroll += h.bet * 2;
         } else if (pTotal === dTotal) {
             bankroll += h.bet;
         }
     });
-
     if (guessCountEnabled) {
         gamePhase = 'endround';
         document.getElementById('feedback').innerText = "Round over – Guess Running Count!";
@@ -689,13 +661,72 @@ function evaluateAllHands() {
     }
     updateDisplay();
 }
-// Insurance
+function updateDisplay() {
+    document.getElementById('bankroll').innerText = bankroll.toLocaleString();
+    document.getElementById('decks-left').innerText = (deck.length / 52).toFixed(1);
+    document.getElementById('true-count').innerText = countingEnabled ? getTrueCount() : 'N/A';
+    const pct = totalDecisions === 0 ? 0 : Math.round((correctDecisions / totalDecisions) * 100);
+    document.getElementById('play-accuracy').innerText = `Correct plays: ${correctDecisions}/${totalDecisions} (${pct}%)`;
+    const tc = getTrueCount();
+    let units = tc < 2 ? 1 : Math.floor(tc * 3);
+    document.getElementById('bet-suggestion').innerText = `Suggested bet: $${baseUnit * units} (${units} units)`;
+    const hideDealer = gamePhase === 'playing' || gamePhase === 'insurance';
+    document.getElementById('dealer-cards').innerHTML = hideDealer
+        ? `<img src="cards/back.svg" class="card-img">` + (dealerHand[0] ? getCardImageHTML(dealerHand[0]) : '')
+        : dealerHand.map(getCardImageHTML).join('');
+    document.getElementById('dealer-total').innerText = hideDealer ? '?' : handTotal({cards: dealerHand});
+    updatePlayerHandsDisplay();
+    document.getElementById('actions').style.display = gamePhase === 'playing' ? 'block' : 'none';
+    document.getElementById('insurance-actions').style.display = gamePhase === 'insurance' ? 'block' : 'none';
+    document.getElementById('deal-button').style.display = gamePhase === 'betting' ? 'inline-block' : 'none';
+    document.getElementById('end-round').style.display = gamePhase === 'endround' ? 'block' : 'none';
+    if (gamePhase === 'playing') updateActionButtons();
+}
+function startHand() {
+    betPerHand = parseInt(document.getElementById('bet-input').value) || 25;
+    if (betPerHand * numSimultaneousHands > bankroll) { alert("Insufficient funds!"); return; }
+    bankroll -= betPerHand * numSimultaneousHands;
+    playerHands = [];
+    for (let i = 0; i < numSimultaneousHands; i++) {
+        playerHands.push({cards: [], bet: betPerHand});
+    }
+    dealerHand = [];
+    currentHandIndex = 0;
+    gamePhase = 'playing';
+    document.getElementById('feedback').innerText = 'Dealing...';
+    playerHands.forEach(h => { dealCard(h.cards); dealCard(h.cards); });
+    dealCard(dealerHand);
+    dealCard(dealerHand);
+    if (dealerHand[0]?.startsWith('A')) gamePhase = 'insurance';
+    updateDisplay();
+}
+// Insurance handling
 document.getElementById('insurance-yes').onclick = () => {
+    const { deviation } = getCorrectActions({cards: playerHands[0].cards}); // Any hand is fine
+    totalDecisions++;
+    if (deviation.has('insurance')) {
+        correctDecisions++;
+        document.getElementById('feedback').innerText = "✓ Correct insurance deviation!";
+        document.getElementById('feedback').style.color = "lime";
+    } else {
+        document.getElementById('feedback').innerText = "✗ Wrong – no insurance needed";
+        document.getElementById('feedback').style.color = "red";
+    }
     bankroll -= betPerHand * numSimultaneousHands / 2;
     gamePhase = 'playing';
     updateDisplay();
 };
 document.getElementById('insurance-no').onclick = () => {
+    const { deviation } = getCorrectActions({cards: playerHands[0].cards});
+    totalDecisions++;
+    if (!deviation.has('insurance')) {
+        correctDecisions++;
+        document.getElementById('feedback').innerText = "✓ Correct – no insurance";
+        document.getElementById('feedback').style.color = "lime";
+    } else {
+        document.getElementById('feedback').innerText = "✗ Missed deviation – should take insurance!";
+        document.getElementById('feedback').style.color = "red";
+    }
     gamePhase = 'playing';
     updateDisplay();
 };
@@ -706,15 +737,14 @@ document.getElementById('check-count-btn').onclick = () => {
     totalCountGuesses++;
     if (guess === actual) {
         correctCountGuesses++;
-        document.getElementById('count-feedback').innerText = "✓ Correct!";
+        document.getElementById('count-feedback').innerText = "✓ Perfect count!";
         document.getElementById('count-feedback').style.color = "lime";
     } else {
-        document.getElementById('count-feedback').innerText = `✗ Wrong – RC was ${actual}`;
+        document.getElementById('count-feedback').innerText = `✗ Wrong – Running Count was ${actual}`;
         document.getElementById('count-feedback').style.color = "red";
     }
     const pct = Math.round((correctCountGuesses / totalCountGuesses) * 100);
     document.getElementById('count-accuracy').innerText = `${correctCountGuesses}/${totalCountGuesses} (${pct}%)`;
-
     setTimeout(() => {
         gamePhase = 'betting';
         document.getElementById('feedback').innerText = "Next hand ready";
