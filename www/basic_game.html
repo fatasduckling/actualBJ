@@ -77,6 +77,7 @@
         button.legal:hover {
             background: linear-gradient(to bottom, #ffcc00, #d4af37);
         }
+        /* Perfect Circle Settings Button */
         #settings-btn {
             position: fixed;
             top: 12px;
@@ -85,14 +86,16 @@
             background: linear-gradient(to bottom, #e6b800, #c3992a);
             color: white;
             font-size: 28px;
-            line-height: 56px;
-            text-align: center;
             border-radius: 50%;
             width: 56px;
             height: 56px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.6);
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
         }
         #settings-btn:hover {
             background: linear-gradient(to bottom, #ffcc00, #d4af37);
@@ -180,12 +183,18 @@
             .card-img { max-height: 110px; }
             button { padding: 12px 18px; font-size: 17px; min-width: 90px; }
             h1 { font-size: 24px; }
-            #settings-btn { width: 50px; height: 50px; line-height: 50px; font-size: 24px; }
+            #settings-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
+<!-- Perfect Circle Settings Button -->
 <button id="settings-btn" title="Settings">⚙️</button>
+
 <div id="overlay"></div>
 <div id="settings-menu">
     <h2>Game Settings</h2>
@@ -214,9 +223,9 @@
         <div class="setting-item">
             <label>Decks:</label>
             <select id="num-decks">
-                <option value="1">1</option>
+                <option value="1" selected>1</option>
                 <option value="2">2</option>
-                <option value="6" selected>6</option>
+                <option value="6">6</option>
                 <option value="8">8</option>
             </select>
         </div>
@@ -244,10 +253,10 @@
 
 <div id="game">
     <h1>Basic Strategy Blackjack Trainer</h1>
-   
+  
     <div class="section stats">
         <div>Bankroll: $<span id="bankroll">5000</span></div>
-        <div>Decks Left: <span id="decks-left">6.0</span></div>
+        <div>Decks Left: <span id="decks-left">1.0</span></div>
     </div>
     <div class="section">
         <p id="play-accuracy" style="font-size:20px;font-weight:bold;">Correct plays: 0/0 (0%)</p>
@@ -262,21 +271,16 @@
         <h2>Dealer: <span id="dealer-total">?</span></h2>
         <div id="dealer-cards" class="cards"></div>
     </div>
-
     <div id="player-hands-container"></div>
-
     <div id="insurance-actions" class="section" style="display:none;">
         <p style="color:orange; font-size:1.3em;font-weight:bold;">Dealer shows Ace – Insurance?</p>
         <button id="insurance-yes">Yes</button>
         <button id="insurance-no">No</button>
     </div>
-
     <div id="actions" class="section" style="display:none;"></div>
-
     <div class="section">
         <p id="feedback">Ready — press Deal</p>
     </div>
-
     <button id="back-to-menu" onclick="location.href='index.html'">← Back to Menu</button>
 </div>
 
@@ -289,15 +293,12 @@ let currentHandIndex = 0;
 let bankroll = 5000, betPerHand = 25;
 let gamePhase = 'betting';
 let totalDecisions = 0, correctDecisions = 0;
-
 // Settings
-let numDecks = 6, dealerHitsSoft17 = true, surrenderEnabled = true, bjPayout = 1.5;
+let numDecks = 1, dealerHitsSoft17 = true, surrenderEnabled = true, bjPayout = 1.5;
 let doubleAfterSplit = true;
 let numSimultaneousHands = 1;
-
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-
 function createDeck() {
     deck = [];
     for (let d = 0; d < numDecks; d++) {
@@ -365,7 +366,6 @@ function getCardImageHTML(card) {
     const fileName = `${rankMap[r] || r}_of_${suitMap[s]}.svg`.toLowerCase();
     return `<img src="cards/${fileName}" class="card-img" alt="${card}">`;
 }
-
 // 100% PERFECT Basic Strategy (multi-deck, late surrender, DAS optional)
 function getCorrectAction(handObj) {
     const hand = handObj.cards;
@@ -374,7 +374,6 @@ function getCorrectAction(handObj) {
     const isSoftHand = isSoft(handObj);
     const rank = hand.length === 2 ? rankValue(hand[0]) : null;
     let correct = new Set();
-
     // === Splits (always first) ===
     if (hand.length === 2 && rankValue(hand[0]) === rankValue(hand[1])) {
         if (rank === 'A' || rank === '8') correct.add('split');
@@ -386,13 +385,11 @@ function getCorrectAction(handObj) {
         if ((rank === '3' || rank === '2') && up <= 7) correct.add('split');
         if (rank === '10') {} // Never split 10s
     }
-
     // === Surrender ===
     if (surrenderEnabled && hand.length === 2) {
         if (total === 16 && up >= 9) correct.add('surrender');
         if (total === 15 && up === 10) correct.add('surrender');
     }
-
     // === Soft Doubles & Hits ===
     if (isSoftHand && hand.length === 2) {
         if (total === 19) correct.add('stand');
@@ -407,14 +404,12 @@ function getCorrectAction(handObj) {
         }
         if (total <= 16) correct.add('double'); // A5-A4 vs 4-6, else hit (simplified)
     }
-
     // === Hard Doubles ===
     if (hand.length === 2 && !isSoftHand) {
         if (total === 11) correct.add('double');
         if (total === 10 && up <= 9) correct.add('double');
         if (total === 9 && up >= 3 && up <= 6) correct.add('double');
     }
-
     // === Stand / Hit on Hard Totals ===
     if (total >= 17) correct.add('stand');
     if (total <= 11) correct.add('hit');
@@ -422,10 +417,8 @@ function getCorrectAction(handObj) {
         if (up <= 6) correct.add('stand');
         else correct.add('hit');
     }
-
     return correct;
 }
-
 function updatePlayerHandsDisplay() {
     const container = document.getElementById('player-hands-container');
     container.innerHTML = '';
@@ -446,13 +439,10 @@ function updateActionButtons() {
     const handObj = playerHands[currentHandIndex];
     const hand = handObj.cards;
     const correct = getCorrectAction(handObj);
-
     const actions = ['hit', 'stand', 'double', 'split', 'surrender'];
-
     actions.forEach(act => {
         let show = true;
         let legal = false;
-
         if (act === 'hit' || act === 'stand') {
             show = true;
             legal = true;
@@ -469,7 +459,6 @@ function updateActionButtons() {
             show = true;
             legal = surrenderEnabled && hand.length === 2;
         }
-
         if (show) {
             const btn = document.createElement('button');
             btn.textContent = act.charAt(0).toUpperCase() + act.slice(1);
@@ -482,22 +471,17 @@ function updateActionButtons() {
 function updateDisplay() {
     document.getElementById('bankroll').innerText = bankroll.toLocaleString();
     document.getElementById('decks-left').innerText = (deck.length / 52).toFixed(1);
-
     const pct = totalDecisions === 0 ? 0 : Math.round((correctDecisions / totalDecisions) * 100);
     document.getElementById('play-accuracy').innerText = `Correct plays: ${correctDecisions}/${totalDecisions} (${pct}%)`;
-
     const hideDealer = gamePhase === 'playing' || gamePhase === 'insurance';
     document.getElementById('dealer-cards').innerHTML = hideDealer
         ? `<img src="cards/back.svg" class="card-img">` + getCardImageHTML(dealerHand[0])
         : dealerHand.map(getCardImageHTML).join('');
     document.getElementById('dealer-total').innerText = hideDealer ? '?' : handTotal({cards: dealerHand});
-
     updatePlayerHandsDisplay();
-
     document.getElementById('actions').style.display = gamePhase === 'playing' ? 'block' : 'none';
     document.getElementById('insurance-actions').style.display = gamePhase === 'insurance' ? 'block' : 'none';
     document.getElementById('deal-button').style.display = gamePhase === 'betting' ? 'inline-block' : 'none';
-
     if (gamePhase === 'playing') updateActionButtons();
 }
 function startHand() {
@@ -506,7 +490,6 @@ function startHand() {
         alert("Insufficient funds!");
         return;
     }
-
     bankroll -= betPerHand * numSimultaneousHands;
     playerHands = [];
     for (let i = 0; i < numSimultaneousHands; i++) {
@@ -515,33 +498,26 @@ function startHand() {
     dealerHand = [];
     currentHandIndex = 0;
     gamePhase = 'playing';
-
     document.getElementById('feedback').innerText = 'Dealing...';
-
     playerHands.forEach(h => {
         dealCard(h.cards);
         dealCard(h.cards);
     });
     dealCard(dealerHand);
     dealCard(dealerHand);
-
     if (dealerHand[0].startsWith('A')) gamePhase = 'insurance';
-
     updateDisplay();
 }
 function playerMove(action) {
     const handObj = playerHands[currentHandIndex];
     const hand = handObj.cards;
-
     // Legality check
     let legal = false;
     if (action === 'hit' || action === 'stand') legal = true;
     if (action === 'double') legal = (hand.length === 2) || (hand.length > 2 && doubleAfterSplit);
     if (action === 'split') legal = isSplittable(handObj);
     if (action === 'surrender') legal = surrenderEnabled && hand.length === 2;
-
     if (!legal) return;
-
     const correct = getCorrectAction(handObj);
     totalDecisions++;
     if (correct.has(action)) {
@@ -552,7 +528,6 @@ function playerMove(action) {
         document.getElementById('feedback').innerText = `✗ Wrong – correct: ${[...correct].map(a => a.toUpperCase()).join('/')}`;
         document.getElementById('feedback').style.color = "red";
     }
-
     if (action === 'hit') {
         dealCard(hand);
         if (handTotal(handObj) > 21) moveToNextHand();
@@ -575,7 +550,6 @@ function playerMove(action) {
         playerHands.splice(currentHandIndex + 1, 0, newHand);
         updateDisplay();
     }
-
     updateDisplay();
 }
 function moveToNextHand() {
