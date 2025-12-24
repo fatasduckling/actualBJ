@@ -76,7 +76,7 @@
             display: block;
             border: 2px solid gold;
         }
-        /* Perfect Circle Settings Button */
+        /* Perfect Circle Settings Button with ⚙ (U+2699) */
         #settings-btn {
             position: fixed;
             top: 15px;
@@ -84,7 +84,7 @@
             z-index: 200;
             background: linear-gradient(to bottom, #e6b800, #c3992a);
             color: white;
-            font-size: 28px;
+            font-size: 32px;
             border-radius: 50%;
             width: 70px;
             height: 70px;
@@ -204,7 +204,7 @@
             #settings-btn {
                 width: 60px;
                 height: 60px;
-                font-size: 24px;
+                font-size: 28px;
             }
             #feedback {
                 font-size: 28px;
@@ -213,8 +213,8 @@
     </style>
 </head>
 <body>
-<!-- Perfect Circle Settings Button -->
-<button id="settings-btn" title="Settings">⚙️</button>
+<!-- Perfect Circle Settings Button with ⚙ (U+2699) -->
+<button id="settings-btn" title="Settings">⚙</button>
 <!-- Overlay & Settings Menu -->
 <div id="overlay"></div>
 <div id="settings-menu">
@@ -266,7 +266,7 @@ let correct = 0;
 let total = 0;
 let mode = 'batch';
 let cardDelay = 800;
-let currentTimeout = null; // To track and clear any ongoing deck mode timeout
+let currentTimeout = null;
 function createFullDeck() {
     fullDeck = [];
     suits.forEach(s => ranks.forEach(r => fullDeck.push(r + s)));
@@ -298,7 +298,7 @@ function startBatch() {
         currentTimeout = null;
     }
     createFullDeck();
-    const numCards = Math.floor(Math.random() * 6) + 5; // 5-10
+    const numCards = Math.floor(Math.random() * 6) + 5;
     const shownCards = fullDeck.slice(0, numCards);
     const runningCount = shownCards.reduce((sum, c) => sum + getHiLoValue(c), 0);
     document.getElementById('cards-display').innerHTML = shownCards.map(getCardImageHTML).join('');
