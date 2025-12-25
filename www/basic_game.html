@@ -218,6 +218,25 @@
                 font-size: 24px;
             }
         }
+
+        /* Shuffle Popup */
+        #shuffle-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: gold;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: 15px;
+            border: 3px solid gold;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            z-index: 300;
+            text-shadow: 0 2px 4px black;
+        }
     </style>
 </head>
 <body>
@@ -284,6 +303,10 @@
     </div>
     <button id="apply-settings-btn">Apply & Close</button>
 </div>
+
+<!-- Shuffle Popup -->
+<div id="shuffle-popup">Shuffling...</div>
+
 <div id="game">
     <h1>Basic Strategy Blackjack Trainer</h1>
     <div class="section stats">
@@ -331,6 +354,16 @@ let numSimultaneousHands = 1;
 let highlightCorrectMove = false; // Default: OFF
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+// Show shuffling popup
+function showShufflePopup() {
+    const popup = document.getElementById('shuffle-popup');
+    popup.style.display = 'block';
+    setTimeout(() => {
+        popup.style.display = 'none';
+    }, 1500);
+}
+
 function createDeck() {
     deck = [];
     for (let d = 0; d < numDecks; d++) {
@@ -341,7 +374,9 @@ function createDeck() {
         }
     }
     shuffle(deck);
+    showShufflePopup(); // Show popup every time we reshuffle
 }
+
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -349,7 +384,7 @@ function shuffle(array) {
     }
 }
 function dealCard(toArray) {
-    if (deck.length < 20) createDeck();
+    if (deck.length < 20) createDeck(); // This triggers shuffle popup
     const card = deck.pop();
     toArray.push(card);
     return card;
@@ -498,13 +533,13 @@ function updateDisplay() {
     document.getElementById('decks-left').innerText = (deck.length / 52).toFixed(1);
     const pct = totalDecisions === 0 ? 0 : Math.round((correctDecisions / totalDecisions) * 100);
     document.getElementById('play-accuracy').innerText = `Correct plays: ${correctDecisions}/${totalDecisions} (${pct}%)`;
-   
+  
     const hideDealer = gamePhase === 'playing' || gamePhase === 'insurance';
     document.getElementById('dealer-cards').innerHTML = hideDealer
         ? `<img src="cards/back.svg" class="card-img">` + getCardImageHTML(dealerHand[0])
         : dealerHand.map(getCardImageHTML).join('');
     document.getElementById('dealer-total').innerText = hideDealer ? '?' : handTotal({cards: dealerHand});
-   
+  
     updatePlayerHandsDisplay();
     document.getElementById('actions').style.display = gamePhase === 'playing' ? 'block' : 'none';
     document.getElementById('insurance-actions').style.display = gamePhase === 'insurance' ? 'block' : 'none';
